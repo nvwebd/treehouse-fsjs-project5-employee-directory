@@ -1,3 +1,9 @@
 # Created by .ignore support plugin (hsz.mobi)
 .idea/
-
+cypress
+.eslintrc.json
+.prettierrc
+__tests__
+cypress.json
+jest.config.js
+wallaby.js
