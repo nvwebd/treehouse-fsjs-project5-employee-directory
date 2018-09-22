@@ -27,6 +27,8 @@
           userdata.login.username.includes(event.target.value)
         ) {
           return userdata;
+        } else {
+          return null;
         }
       })
     );
