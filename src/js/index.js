@@ -44,11 +44,28 @@
   const eventBinder = (elementToBindTo, eventName, eventResolver) =>
     elementToBindTo.addEventListener(eventName, eventResolver);
 
+  /**
+   * [eventDisolver funciton closes an event listener]
+   * @param  {[DOMElement]} elementToDisolveFrom [description]
+   * @param  {[type]} eventType            [description]
+   * @param  {[type]} eventToRemove        [description]
+   * @return {[type]}                      [description]
+   */
   const eventDisolver = (elementToDisolveFrom, eventType, eventToRemove) =>
     elementToDisolveFrom.addEventListener(eventType, eventToRemove);
 
+  /**
+   * [capitalizeString function capitalizes the input string]
+   * @param  {String} string [input string that has to be capitalized]
+   * @return {String}        [capitalized string]
+   */
   const capitalizeString = string => string[0].toUpperCase() + string.substr(1);
 
+  /**
+   * [buildEmployeeGrid description]
+   * @param  {Array} users [array of user objects to be used in the grid]
+   * @return {String}       [returns the template string to be injected in the DOM]
+   */
   const buildEmployeeGrid = users => {
     let gridTemplate = "<section class=\"three-column-row\">";
 
@@ -78,12 +95,22 @@
     return gridTemplate;
   };
 
+  /**
+   * [injectUsersData injects the user data into the DOM]
+   * @param  {Array} users [array of user objects]
+   * @return {void}       [function has no return value]
+   */
   const injectUsersData = users => {
     doc.getElementById("employee-grid-container").innerHTML = buildEmployeeGrid(
       users
     );
   };
 
+  /**
+   * [escKeyResolver function resolves the ESC keypress event]
+   * @param  {DOMEvent} event [keypress event]
+   * @return {void}       [no return value]
+   */
   const escKeyResolver = event => {
     if (event.keyCode === 27) {
       state.modalOpen = false;
@@ -92,6 +119,11 @@
     }
   };
 
+  /**
+   * [buildUserModal builds the users modal template]
+   * @param  {Object} user [the user that was clicked on]
+   * @return {String}      [returns the template string array]
+   */
   const buildUserModal = user => {
     // tODO: implement a loader until all data is loaded
     const birthDayRaw = new Date(user.dob.date);
@@ -133,15 +165,19 @@
       `;
   };
 
+  /**
+   * [closeButtonResolver function resolves the click event on "X" button of the modal]
+   * @return {void} [no return value]
+   */
   const closeButtonResolver = () => {
     doc.getElementById("user-modal").style.display = "none";
     toggleOverlay(false);
   };
 
-  const outsideModalClickResolver = event => {
-    // console.log(event.target);
-  };
-
+  /**
+   * [leftArrowClickResolver function resolves the click event on the left arrow in the modal]
+   * @return {void} [no return value]
+   */
   const leftArrowClickResolver = () => {
     const currentUser =
       parseInt(state.selectedUser, 10) !== 0
@@ -150,6 +186,10 @@
     injectModalData(currentUser);
   };
 
+  /**
+   * [rightArrowClickResolver function resolves the click event on the right arrow in the modal]
+   * @return {void} [no return value]
+   */
   const rightArrowClickResolver = () => {
     const currentUser =
       parseInt(state.selectedUser, 10) < state.users.length - 1
@@ -158,6 +198,11 @@
     injectModalData(currentUser);
   };
 
+  /**
+   * [injectModalData function injects all data and resolvers for the user modal]
+   * @param  {String} userId [the users ID that should be shown]
+   * @return {void}        [no return value]
+   */
   const injectModalData = userId => {
     const userModalDiv = doc.getElementById("user-modal");
 
@@ -181,9 +226,12 @@
     eventBinder(doc, "click", outsideModalClickResolver);
   };
 
+  /**
+   * [cardClickHandler function resolves - injects the right data into the modal]
+   * @param  {DOMEvent} event [event triggered on the user card]
+   * @return {void}       [no return value]
+   */
   const cardClickHandler = event => {
-    console.log("clicked card");
-
     toggleOverlay(true);
 
     if (event.target.id) {
@@ -195,6 +243,10 @@
     }
   };
 
+  /**
+   * [bindClickListenerToUserCard binds an click event listener to the user card]
+   * @return {void} [no return value]
+   */
   const bindClickListenerToUserCard = () => {
     const userCards = doc.getElementsByClassName("user-container");
 
@@ -203,12 +255,20 @@
     }
   };
 
+  /**
+   * [bindKeydownToSearchFilter binds an event listner to the search input box]
+   * @return {void} [no return value]
+   */
   const bindKeydownToSearchFilter = () => {
     const filterInput = doc.getElementById("search");
 
     eventBinder(filterInput, "keyup", filterUsersByUsernameOrName);
   };
 
+  /**
+   * [windowLoaderTemplate returns the template for the loader]
+   * @return {String} [returns the template string]
+   */
   const windowLoaderTemplate = () => {
     return `<div class="spinner-wrapper">
       <div class="lds-spinner">
@@ -228,6 +288,11 @@
     </div>`;
   };
 
+  /**
+   * [windowLoaderToggler toggles on/off the loader]
+   * @param  {Boolean} enable [true when it should be shown / false when to hide it]
+   * @return {void}        [no return value]
+   */
   const windowLoaderToggler = enable => {
     if (enable) {
       doc.getElementById(
@@ -238,6 +303,11 @@
     }
   };
 
+  /**
+   * [toggleOverlay shows/hides the overlay for modal]
+   * @param  {Boolean} enable [true: show the overlay / false: hide the overlay]
+   * @return {void}        [no return value]
+   */
   const toggleOverlay = enable => {
     if (enable) {
       doc.getElementById("overlay").classList.add("overlay");
@@ -246,14 +316,16 @@
     }
   };
 
+  /**
+   * [main function starts the app and bind all the data / listeners]
+   * @return {void} [no return value]
+   */
   const main = () => {
     doc.getElementById("overlay").addEventListener("click", () => {
       toggleOverlay(false);
       state.modalOpen = false;
       doc.getElementById("user-modal").style.display = "none";
     });
-
-    // tODO: add a loader until the data is fetched
     windowLoaderToggler(true);
     fetch("https://randomuser.me/api/?results=12&nat=us")
       .then(response => response.json())
@@ -270,5 +342,3 @@
 
   main();
 })(document);
-
-// setUsersState(response.data.results);
