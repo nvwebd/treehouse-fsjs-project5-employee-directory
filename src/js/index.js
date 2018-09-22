@@ -16,16 +16,20 @@
    * @return {[void]}       [no return value]
    */
   const filterUsersByUsernameOrName = event => {
-    // TODO: every typed character should filter the users!
+    // tODO: every typed character should filter the users!
 
     injectUsersData(
       state.users.filter(userdata => {
         const fullName = userdata.name.first + userdata.name.last;
 
-        return fullName.includes(event.target.value);
+        if (
+          fullName.includes(event.target.value) ||
+          userdata.login.username.includes(event.target.value)
+        ) {
+          return userdata;
+        }
       })
     );
-    console.log("typing: ", event.target.value);
   };
 
   /**
