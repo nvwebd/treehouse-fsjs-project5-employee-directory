@@ -22,9 +22,9 @@
 
 **Structure and style the user directory so that it roughly matches the provide mockup.**
 
-[x] Display the users in a grid or table
-[x] Add a hover state to the rows of the user table.
-[x] Make sure there’s a way to close the modal window
+- [x] Display the users in a grid or table
+- [x] Add a hover state to the rows of the user table.
+- [x] Make sure there’s a way to close the modal window
 
 ## EXTRA CREDIT
 
