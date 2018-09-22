@@ -16,20 +16,18 @@
    * @return {[void]}       [no return value]
    */
   const filterUsersByUsernameOrName = event => {
-    // tODO: every typed character should filter the users!
-
     injectUsersData(
       state.users.filter(userdata => {
-        const fullName = userdata.name.first + userdata.name.last;
+        const fullName = `${userdata.name.first} ${userdata.name.last}`;
 
         if (
           fullName.includes(event.target.value) ||
           userdata.login.username.includes(event.target.value)
         ) {
           return userdata;
-        } else {
-          return null;
         }
+
+        return null;
       })
     );
   };
@@ -43,16 +41,6 @@
    */
   const eventBinder = (elementToBindTo, eventName, eventResolver) =>
     elementToBindTo.addEventListener(eventName, eventResolver);
-
-  /**
-   * [eventDisolver funciton closes an event listener]
-   * @param  {[DOMElement]} elementToDisolveFrom [description]
-   * @param  {[type]} eventType            [description]
-   * @param  {[type]} eventToRemove        [description]
-   * @return {[type]}                      [description]
-   */
-  const eventDisolver = (elementToDisolveFrom, eventType, eventToRemove) =>
-    elementToDisolveFrom.addEventListener(eventType, eventToRemove);
 
   /**
    * [capitalizeString function capitalizes the input string]
@@ -125,7 +113,6 @@
    * @return {String}      [returns the template string array]
    */
   const buildUserModal = user => {
-    // tODO: implement a loader until all data is loaded
     const birthDayRaw = new Date(user.dob.date);
     const birthDay = birthDayRaw.toLocaleDateString("en-US");
 
@@ -223,7 +210,6 @@
       rightArrowClickResolver
     );
     eventBinder(doc.getElementById("close-btn"), "click", closeButtonResolver);
-    eventBinder(doc, "click", outsideModalClickResolver);
   };
 
   /**
@@ -335,7 +321,6 @@
         injectUsersData(data.results);
         bindClickListenerToUserCard();
         bindKeydownToSearchFilter();
-        console.log(state.users);
       })
       .catch(error => console.error(error));
   };
