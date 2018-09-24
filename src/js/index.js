@@ -7,7 +7,9 @@
   const state = {
     users: undefined,
     selectedUser: undefined,
-    modalOpen: undefined
+    modalOpen: undefined,
+    usersFiltered: false,
+    filteredUsers: undefined
   };
 
   /**
@@ -16,20 +18,22 @@
    * @return {[void]}       [no return value]
    */
   const filterUsersByUsernameOrName = event => {
-    injectUsersData(
-      state.users.filter(userdata => {
-        const fullName = `${userdata.name.first} ${userdata.name.last}`;
+    state.usersFiltered = event.target.value.length > 0;
 
-        if (
-          fullName.includes(event.target.value) ||
-          userdata.login.username.includes(event.target.value)
-        ) {
-          return userdata;
-        }
+    state.filteredUsers = state.users.filter(userdata => {
+      const fullName = `${userdata.name.first} ${userdata.name.last}`;
 
-        return null;
-      })
-    );
+      if (
+        fullName.includes(event.target.value) ||
+        userdata.login.username.includes(event.target.value)
+      ) {
+        return userdata;
+      }
+
+      return null;
+    });
+
+    injectUsersData(state.filteredUsers);
   };
 
   /**
@@ -55,32 +59,26 @@
    * @return {String}       [returns the template string to be injected in the DOM]
    */
   const buildEmployeeGrid = users => {
-    let gridTemplate = "<section class=\"three-column-row\">";
-
-    users.map((user, index) => {
-      gridTemplate += `<figure class="user-container col" id="${index}">
+    let gridTemplate = "";
+    gridTemplate += users.map(
+      (user, index) =>
+        `<figure class="user-container" id="${index}">
         <div>
           <img src="${user.picture.large}" alt="">
         </div>
         <figcaption>
           <h1>
             ${capitalizeString(user.name.first)} ${capitalizeString(
-        user.name.last
-      )}
+          user.name.last
+        )}
           </h1>
           <h3>${user.email}</h3>
           <h3>${capitalizeString(user.location.city)}</h3>
         </figcaption>
-      </figure>`;
+      </figure>`
+    );
 
-      if (index === 2 || index === 5 || index === 8) {
-        gridTemplate += "</section><section class=\"three-column-row\">";
-      }
-    });
-
-    gridTemplate += "</section>";
-
-    return gridTemplate;
+    return gridTemplate.replace(/,/g, "");
   };
 
   /**
@@ -92,6 +90,7 @@
     doc.getElementById("employee-grid-container").innerHTML = buildEmployeeGrid(
       users
     );
+    bindClickListenerToUserCard();
   };
 
   /**
@@ -158,6 +157,7 @@
    */
   const closeButtonResolver = () => {
     doc.getElementById("user-modal").style.display = "none";
+    state.modalOpen = false;
     toggleOverlay(false);
   };
 
@@ -166,10 +166,20 @@
    * @return {void} [no return value]
    */
   const leftArrowClickResolver = () => {
-    const currentUser =
-      parseInt(state.selectedUser, 10) !== 0
-        ? parseInt(state.selectedUser, 10) - 1
-        : state.users.length - 1;
+    let currentUser;
+
+    if (state.usersFiltered) {
+      currentUser =
+        parseInt(state.selectedUser, 10) !== 0
+          ? parseInt(state.selectedUser, 10) - 1
+          : state.filteredUsers.length - 1;
+    } else {
+      currentUser =
+        parseInt(state.selectedUser, 10) !== 0
+          ? parseInt(state.selectedUser, 10) - 1
+          : state.users.length - 1;
+    }
+
     injectModalData(currentUser);
   };
 
@@ -178,10 +188,20 @@
    * @return {void} [no return value]
    */
   const rightArrowClickResolver = () => {
-    const currentUser =
-      parseInt(state.selectedUser, 10) < state.users.length - 1
-        ? parseInt(state.selectedUser, 10) + 1
-        : 1;
+    let currentUser;
+
+    if (state.usersFiltered) {
+      currentUser =
+        parseInt(state.selectedUser, 10) < state.filteredUsers.length - 1
+          ? parseInt(state.selectedUser, 10) + 1
+          : 0;
+    } else {
+      currentUser =
+        parseInt(state.selectedUser, 10) < state.users.length - 1
+          ? parseInt(state.selectedUser, 10) + 1
+          : 0;
+    }
+
     injectModalData(currentUser);
   };
 
@@ -192,10 +212,15 @@
    */
   const injectModalData = userId => {
     const userModalDiv = doc.getElementById("user-modal");
-
     state.modalOpen = true;
     state.selectedUser = userId;
-    userModalDiv.innerHTML = buildUserModal(state.users[userId]);
+    if (state.filteredUsers) {
+      userModalDiv.innerHTML = buildUserModal(
+        state.filteredUsers[state.selectedUser]
+      );
+    } else {
+      userModalDiv.innerHTML = buildUserModal(state.users[state.selectedUser]);
+    }
     userModalDiv.style.display = "flex";
 
     eventBinder(
@@ -312,13 +337,16 @@
       state.modalOpen = false;
       doc.getElementById("user-modal").style.display = "none";
     });
+
     windowLoaderToggler(true);
     fetch("https://randomuser.me/api/?results=12&nat=us")
       .then(response => response.json())
       .then(data => {
         state.users = [...data.results];
+
         windowLoaderToggler(false);
         injectUsersData(data.results);
+
         bindClickListenerToUserCard();
         bindKeydownToSearchFilter();
       })
